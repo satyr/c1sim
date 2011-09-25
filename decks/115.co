@@ -1,0 +1,2 @@
+module.exports = for i til 10
+  lt: 1, str: 1, def: 5

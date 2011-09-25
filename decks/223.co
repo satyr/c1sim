@@ -1,0 +1,1 @@
+module.exports = [lt:2 str:2 def:3] * 10

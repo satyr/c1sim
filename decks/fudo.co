@@ -1,0 +1,7 @@
+module.exports = [
+*1 lt:6 str:1 def:4 catapult:2 buster:1
+*2 lt:2 str:1 def:6
+*4 lt:2 str:2 def:3
+*2 lt:3 str:2 def:4
+*1 lt:4 str:1 def:4 buster:1
+] <<< {+charisma}

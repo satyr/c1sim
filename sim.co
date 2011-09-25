@@ -1,0 +1,70 @@
+#!coco
+opts  = {}
+names = for arg, i of args = process.argv.slice 2
+  if /^-{1,2}(.+)/exec arg
+    [, flag] = that
+    opts[flag] = if flag of <[ f field ]> then args[++i] else true
+    continue
+  arg
+
+if names.length < 2
+  console.log '''
+    Usage: sim [options] deck1 deck2
+
+    Options:
+      -l, --log
+      -f, --field {red,mist,isle}
+  '''
+  process.exit 1
+
+global.x = (times, it) -> [it] * times
+
+decks = for name, i of names
+  m = require "./decks/#name"
+  deck = for card of m
+    if card.0?
+      card.1 for _ til that
+    else card
+  die "#{deck.length} cards in #name" unless deck.length of [10 20]
+  name += \- + -~i if names.0 is names.1
+  deck <<< {name, m.charisma}
+
+{Battle} = require \./c1; field = opts.field or opts.f
+
+if opts.log or opts.l
+  if opts.0 or opts.1
+    choice = ~~opts.1
+    do then {battle, log} = watch!
+    until battle.on! is choice
+  else {log} = watch!
+  say log
+  return
+
+points = [0 0]
+turns  = [0 0]
+lives  = [0 0]
+for i til 2
+  for j til 500
+    res = Battle decks, field .go!
+    ++points[k = res.win ^ i]
+    turns[k] += res.turn
+    lives[k] += res.life
+  decks.reverse!
+len = 2 + names.reduce -> @@0.length >? @@1.length
+for i til 2
+  pt = points[i]
+  say "#{ (decks[i]name + ' ' * len)slice 0, len }
+       #{ (' ' * 3 + pt)slice -4 }
+       \  T#{ (turns[i]/pt)toFixed 1 }
+       \  L#{ (lives[i]/pt)toFixed 1 }"
+say "#{ (points.0/10)toFixed 1 }%"
+
+function watch
+  b = Battle decks, field; log = ''
+  while her = b.next!
+    log += "#{b.turn}: #{her.name}(#{her.life})\n"
+    log += "#that\n" if ("#{c.lt}|#{c.str}/#{c.def}" for c of her.hand) * ' '
+    log += util.inspect(her.play) + \\n if her.play.length
+    log += \\n
+  log += "#{b.offense!name} wins!"
+  {log, battle: b}

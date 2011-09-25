@@ -1,0 +1,9 @@
+module.exports = [
+*2 lt:1 str:1 def:2 flying:1
+*1 lt:4 str:1 def:5 flying:1 shock:1
+*2 lt:3 str:0 def:5 drain:1
+*1 lt:3 str:2 def:4
+*1 lt:7 str:2 def:8
+*1 lt:5 str:2 def:5 shock:[1 2]
+*2 lt:3 str:1 def:3 shock:1
+] <<< {+charisma}

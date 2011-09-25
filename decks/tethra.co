@@ -1,0 +1,13 @@
+module.exports = [
+*3 co:\d lt:3 str:2 def:3 revive:0.5
+*3 co:\d lt:2 str:2 def:3
+*2 co:\d lt:3 str:2 def:2 absorb:1
+*1 co:\d lt:3 str:2 def:2 boost:[\d 1] revive:0.75
+*1 co:\d lt:3 str:1 def:5 lock:1 revive:0.5
+*1 co:\d lt:4 str:1 def:5 pressure:1 infect:1
+*1 co:\d lt:4 str:1 def:5 warning:2
+*2 co:\d lt:4 str:3 def:3
+*2 co:\d lt:4 str:1 def:5 warning:2
+*2 co:\d lt:6 str:3 def:5
+*2 co:\d lt:4 str:3 def:3 type:\bee boost:[\bee 1]
+] <<< {+charisma}

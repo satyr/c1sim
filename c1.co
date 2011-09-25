@@ -1,0 +1,189 @@
+class @Battle
+  (decks, field) ~>
+    for i to 1
+      @[i] = Player decks[i]
+      continue unless field is \red
+      -~=card.catapult if card.lt <= 4 for card of @[i]deck
+
+  turn: 0
+
+  go: ->
+    continue while @next!
+    {@turn, (@[win = @on!])life, win}
+
+  on: -> @turn % 2 ^ 1
+
+  offense: -> @[@on! ^ 0]
+  defense: -> @[@on! ^ 1]
+
+  next: ->
+    if ++@turn >= 60
+      @defense!life -= @turn - 58 >> 1 << 1
+    @offense!load!attack @defense!
+
+  length: 2
+
+class @Player
+  id = 0
+
+  (deck) ~>
+    @life += deck.length
+    @deck = (copy card for card of deck)
+    @hand = []
+    @play = []
+    import deck{name or \p + ++id, charisma}
+
+  life: 10
+
+  load: (battle) ->
+    @strs = (card.str for card of @play)
+    i = -1
+    while card = @hand[++i]
+      continue if --card.lt > 0
+      if @play.length > 9
+        card.lt -= 9
+        continue
+      delete card.lt
+      @hand.splice i-- 1
+      @play.push card
+      @strs.push card.str + (card.catapult | 0)
+      @pump null, that if card.boost
+    for card, i of @play
+      if card.launcher
+        @pump card, [, that]
+      if card.aggressive
+        @pump card, that
+      if card.triangle
+        @strs[j] !?+= that for j from i-1 to i+1 by 2
+    if @hand.length < 6 and num = @deck.length
+      for _ to num is 20
+        @hand.push if @charisma then @deck.shift! else pick @deck, true
+    this
+
+  attack: (op) ->
+    {play} = op
+    c.index = i for c, i of play
+    for c, i of @play
+      @ready      c, i
+      @charge op, c, i
+      if c.burned and --c.def < 1
+        c.dead = true
+        if c.aggressive
+          @pump c, [that.0, -that.1]
+        @revive c
+    return if op.life < 1
+    @play   = (c unless c.dead for c of @play)
+    op.play = for c of play then if c
+      delete c.index
+      c
+    this
+
+  ready: (card, index) ->
+    if card.heal
+      for v of []concat that
+        min = Math.min ...@play.filter(Boolean)map ->
+          if it.def is it.DEF then 1/0 else it.def
+        pick(c if c.def is min for c of @play)def += v
+    if v = card.sideheal
+      heal @play[i], v for i from index-1 to index+1 by 2
+    if v = card.allheal
+      heal pal, v for pal of @play
+    void
+
+  charge: (op, card, index) ->
+    foes = (c if c for c of op.play)
+    function ping foe, v, card || 0
+      if 0 < delta = foe.def -= v
+        foe.burned = true if card.breath
+      else
+        op.bye foe
+        foes.splice foes.indexOf(foe), 1
+        v += delta
+      heal card, v if card.drain or card.wdrain
+      void
+    if card.pressure
+      pick(op.hand)lt += that
+    if card.warning
+      for foe of pickn foes, that
+        foe.bound = true if Math.random! < 3/4
+    if card.lock and Math.random! < 3/4
+      max = Math.max ...foes.map -> it.str
+      pick(foes.filter -> it.str is max)bound = true
+    if card.crush
+      foes = for foe of foes
+        if 0 < foe.def -= pick that
+          foe
+        else
+          op.bye foe
+          continue
+    if card.critical
+      for v of []concat that
+        continue unless foes.length
+        min = Math.min ...foes.map -> it.def
+        ping pick(foe if foe.def is min for foe of foes), v
+    if card.shock or card.fire or card.drain or card.breath
+      for v of []concat that
+        ping(foes[rand that]; pick v; card) if foes.length
+    if card.wdrain
+      ping(foe; that; card) for foe of pickn foes
+    return if delete card.bound
+    return if 1 > str = @strs[index]
+    op.defend card, str, index-1 if card.buster
+    unless op.defend card, str, index
+      op.life -= str
+      heal card, str if card.absorb
+    op.defend card, str, index+1 if card.buster
+    card.str += that if delete card.bashed and card.strong
+    void
+
+  defend: (foe, str, index) ->
+    return false unless pal = @play[index]
+    foe.bashed = true
+    v   = str - ~~pal.armor >? 0
+    v >>= 1 if pal.flying and not foe.flying
+    v   = 1 if v and foe.co is pal.wall is not void
+    return true unless v
+    if 0 < pal.def -= v
+      if foe.infect and not pal.infected
+        pal.infected = true
+        pal<[str def]>--
+    @bye pal    if pal.def < 1
+    heal foe, v if foe.absorb
+    true
+
+  bye: (card) ->
+    @play[card.index] = null
+    @revive card
+
+  pump: (card, [type, value]) ->
+    for c, i of @play
+      @strs[i] += value if c is not card and (not type or type of c<[type co]>)
+    void
+
+  revive: (card) ->
+    if @hand.length < 6 and Math.random! < card.revive
+      @hand.push copy card.original
+    void
+
+  function copy card
+    c = {__proto__: null, ...card}
+    Object.defineProperty c, \DEF      {value: card.def}
+    Object.defineProperty c, \original {value: card    } if card.revive
+    c
+
+  function heal card, value
+    card and card.def = card.def + value <? card.DEF
+
+function rand n then Math.random! * n | 0
+
+function pick array, remove
+  switch len = array.length
+  case 0    then return false
+  case void then return array
+  i = rand len
+  if remove then array.splice(i, 1)0 else array[i]
+
+function pickn array, n
+  res = []concat array
+  res.splice rand(res.length), 1 while res.length > n
+  res
