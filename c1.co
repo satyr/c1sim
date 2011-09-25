@@ -83,7 +83,7 @@ class @Player
       for v of []concat that
         min = Math.min ...@play.filter(Boolean)map ->
           if it.def is it.DEF then 1/0 else it.def
-        pick(c if c.def is min for c of @play)def += v
+        heal pick(c if c.def is min for c of @play), v
     if v = card.sideheal
       heal @play[i], v for i from index-1 to index+1 by 2
     if v = card.allheal
@@ -109,7 +109,7 @@ class @Player
     if card.lock and Math.random! < 3/4
       max = Math.max ...foes.map -> it.str
       pick(foes.filter -> it.str is max)bound = true
-    if card.crush
+    if card.crush or card.flare
       foes = for foe of foes
         if 0 < foe.def -= pick that
           foe
