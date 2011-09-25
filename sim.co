@@ -1,4 +1,4 @@
-#!coco
+#!/usr/bin/env coco
 opts  = {}
 names = for arg, i of args = process.argv.slice 2
   if /^-{1,2}(.+)/exec arg
