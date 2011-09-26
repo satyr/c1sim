@@ -44,7 +44,7 @@ points = [0 0]
 turns  = [0 0]
 lives  = [0 0]
 for i til 2
-  for j til 500
+  for j til 2e3
     res = Battle decks, field .go!
     ++points[k = res.win ^ i]
     turns[k] += res.turn
@@ -57,7 +57,7 @@ for i til 2
        #{ (' ' * 3 + pt)slice -4 }
        \  T#{ (turns[i]/pt)toFixed 1 }
        \  L#{ (lives[i]/pt)toFixed 1 }"
-say "#{ (points.0/10)toFixed 1 }%"
+say "#{ (points.0/40)toFixed 1 }%"
 
 function watch
   b = Battle decks, field; log = ''
