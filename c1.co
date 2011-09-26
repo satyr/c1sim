@@ -122,8 +122,8 @@ class @Player
         min = Math.min ...foes.map -> it.def
         ping pick(foe if foe.def is min for foe of foes), v
     if card.shock or card.fire or card.drain or card.breath
-      for v of []concat that
-        ping(foes[rand that]; pick v; card) if foes.length
+      v = pick that
+      ping(foes[rand that]; v; card) if foes.length
     if card.wdrain
       ping(foe; that; card) for foe of pickn foes
     return if delete card.bound
