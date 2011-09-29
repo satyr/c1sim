@@ -93,6 +93,7 @@ class @Player
   charge: (op, card, index) ->
     foes = (c if c for c of op.play)
     function ping foe, v, card || 0
+      return unless foe
       if 0 < delta = foe.def -= v
         foe.burned = true if card.breath
       else
@@ -116,6 +117,9 @@ class @Player
         else
           op.bye foe
           continue
+    if v = card.trident
+      for i from index-1 to index+1 by 2
+        ping that, pick v if op.play[i]
     if card.critical
       for v of []concat that
         continue unless foes.length
@@ -123,9 +127,9 @@ class @Player
         ping pick(foe if foe.def is min for foe of foes), v
     if card.shock or card.fire or card.drain or card.breath
       v = pick that
-      ping(foes[rand that]; v; card) if foes.length
+      ping foes[rand that], v, card if foes.length
     if card.wdrain
-      ping(foe; that; card) for foe of pickn foes
+      ping foe, that, card for foe of pickn foes, 2
     return if delete card.bound
     return if 1 > str = @strs[index]
     op.defend card, str, index-1 if card.buster
