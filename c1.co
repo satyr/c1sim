@@ -37,6 +37,7 @@ class @Player
 
   load: (battle) ->
     @strs = (card.str for card of @play)
+    @quick ...that if card.quick for card of @play
     i = -1
     while card = @hand[++i]
       continue if --card.lt > 0
@@ -48,6 +49,7 @@ class @Player
       @play.push card
       @strs.push card.str + (card.catapult | 0)
       @pump null, that if card.boost
+      @quick ...that   if card.quick
     for card, i of @play
       if card.launcher
         @pump card, [, that]
@@ -162,6 +164,12 @@ class @Player
   pump: (card, [type, value]) ->
     for c, i of @play
       @strs[i] += value if c is not card and (not type or type of c<[type co]>)
+    void
+
+  quick: (type, value) ->
+    for card of @hand
+      if type of card<[co type]>
+        card.lt -= value
     void
 
   revive: (card) ->
