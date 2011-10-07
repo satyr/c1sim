@@ -97,7 +97,7 @@ class @Player
     function ping foe, v, card || 0
       return unless foe
       if 0 < delta = foe.def -= v
-        foe.burned = true if card.breath
+        foe.burned = true if card.breath or card.twinbreath
       else
         op.bye foe
         foes.splice foes.indexOf(foe), 1
@@ -130,7 +130,7 @@ class @Player
     if card.shock or card.fire or card.drain or card.breath
       v = pick that
       ping foes[rand that], v, card if foes.length
-    if card.wdrain
+    if card.wdrain or card.twinbreath
       ping foe, that, card for foe of pickn foes, 2
     return if delete card.bound
     return if 1 > str = @strs[index]
