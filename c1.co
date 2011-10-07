@@ -1,11 +1,10 @@
 class @Battle
   (decks, field) ~>
     for i to 1
-      @[i] = Player decks[i]
-      continue unless field is \red
-      -~=card.catapult if card.lt <= 4 for card of @[i]deck
+      @[i] = Player decks[i], field
 
-  turn: 0
+  turn   : 0
+  length : 2
 
   go: ->
     continue while @next!
@@ -19,23 +18,27 @@ class @Battle
   next: ->
     if ++@turn >= 60
       @defense!life -= @turn - 58 >> 1 << 1
-    @offense!load!attack @defense!
-
-  length: 2
+    @offense!load @turn .attack @defense!
 
 class @Player
   id = 0
 
-  (deck) ~>
+  (deck, @field) ~>
     @life += deck.length
     @deck = (copy card for card of deck)
     @hand = []
     @play = []
+    @size = deck.length
+    switch field
+    case \red
+      -~=card.catapult if card.lt <= 4 for card of @deck
+    case \mist
+      card.life = 5    if card.lt >= 5 for card of @deck
     import deck{name or \p + ++id, charisma}
 
   life: 10
 
-  load: (battle) ->
+  load: (turn) ->
     @strs = (card.str for card of @play)
     @quick ...that if card.quick for card of @play
     i = -1
@@ -45,6 +48,7 @@ class @Player
         card.lt -= 9
         continue
       delete card.lt
+      @life += that if delete card.life
       @hand.splice i-- 1
       @play.push card
       @strs.push card.str + (card.catapult | 0)
@@ -58,7 +62,7 @@ class @Player
       if card.triangle
         @strs[j] !?+= that for j from i-1 to i+1 by 2
     if @hand.length < 6 and num = @deck.length
-      for _ to num is 20
+      for _ to turn < 3 and num is @size
         @hand.push if @charisma then @deck.shift! else pick @deck, true
     this
 
