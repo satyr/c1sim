@@ -73,23 +73,23 @@ class @Player
       @ready      c, i
       @charge op, c, i
       if c.burned and --c.def < 1
-        c.dead = true
+        @play[i] = null
         if c.aggressive
           @pump c, [that.0, -that.1]
         @revive c
     return if op.life < 1
-    @play   = (c unless c.dead for c of @play)
+    @play.=filter Boolean
     op.play = for c of play then if c
       delete c.index
       c
     this
 
   ready: (card, index) ->
-    if card.heal
-      for v of []concat that
-        min = Math.min ...@play.filter(Boolean)map ->
-          if it.def is it.DEF then 1/0 else it.def
-        heal pick(c if c.def is min for c of @play), v
+    if v = card.heal
+      pals = @play.filter Boolean
+      min  = Math.min ...pals.map ->
+        if it.def is it.DEF then 1/0 else it.def
+      heal pick(c if c.def is min for c of pals), v
     if v = card.sideheal or card.teamheal
       heal @play[i], v for i from index-1 to index+1 by
         if card.sideheal then 2 else 1
@@ -168,7 +168,8 @@ class @Player
 
   pump: (card, [type, value]) ->
     for c, i of @play
-      @strs[i] += value if c is not card and (not type or type of c<[type co]>)
+      if c and c is not card and (not type or type of c<[type co]>)
+        @strs[i] += value
     void
 
   quick: (type, value) ->
