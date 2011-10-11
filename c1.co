@@ -90,8 +90,9 @@ class @Player
         min = Math.min ...@play.filter(Boolean)map ->
           if it.def is it.DEF then 1/0 else it.def
         heal pick(c if c.def is min for c of @play), v
-    if v = card.sideheal
-      heal @play[i], v for i from index-1 to index+1 by 2
+    if v = card.sideheal or card.teamheal
+      heal @play[i], v for i from index-1 to index+1 by
+        if card.sideheal then 2 else 1
     if v = card.allheal
       heal pal, v for pal of @play
     void
