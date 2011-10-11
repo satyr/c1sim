@@ -24,11 +24,10 @@ class @Player
   id = 0
 
   (deck, @field) ~>
-    @life += deck.length
+    @life += @size = deck.length
     @deck = (copy card for card of deck)
     @hand = []
     @play = []
-    @size = deck.length
     switch field
     case \red
       -~=card.catapult if card.lt <= 4 for card of @deck
@@ -62,7 +61,7 @@ class @Player
       if card.triangle
         @strs[j] !?+= that for j from i-1 to i+1 by 2
     if @hand.length < 6 and num = @deck.length
-      for _ to turn < 3 and num is @size
+      for _ to turn < 3 and num is @size and num/10-1
         @hand.push if @charisma then @deck.shift! else pick @deck, true
     this
 
